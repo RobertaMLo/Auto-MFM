@@ -12,10 +12,11 @@ def get_connectivity_and_synapses_matrix(NAME, SI_units=True, number=5):
     M = np.empty((number, number), dtype=object)
 
 
-    if NAME == 'CRBL_CONFIG_20PARALLEL_wN_PLOS23':
+    if NAME == 'CRBL_CONFIG_20PARALLEL_wN_PLOS23': #THIS CONFIGURATION IS THE ONE USED FOR NUMERICAL TEMPLATE
         # MLI AND PC: ALL PARAMS N-NORMALIZED, K PARALLEL TO OTHER POP * 0.2
         ######################### HO MESSO Q * K!!!!!
         ######################## THIS CONFIG = SAME RATIONALE OF PLOS 2023
+        print('I AM THE OFFICIAL CONFIG USED IN FITTING!!!!')
         # to mf -------------------------------------------------------
         mf_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
         grc_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
@@ -30,7 +31,7 @@ def get_connectivity_and_synapses_matrix(NAME, SI_units=True, number=5):
         pc_grc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
         # to goc Kgrc = Kp*factor + Ka ; Qgrc = (Qa*n_syn_a*Ka+Qp*n_syn_p*Kp*factor)/(Ka+Kp*factor)-------------------------------------------------------
         #mf_goc = {'K': 57.1, 'Q': 0.24, 'Tsyn': 5., 'Erev': 0.}
-        mf_goc = {'K': 35., 'Q': 0.24, 'Tsyn': 5.00, 'Erev': 0.}
+        mf_goc = {'K': 35., 'Q': 0.24, 'Tsyn': 5.00, 'Erev': 0.} #K mf_goc is reduced in the original network used for PLOS2023 version
         grc_goc = {'K': 530, 'Q': 0.437, 'Tsyn': 1.25, 'Erev': 0.} #Q normlaized per parallel and ascending -- 0.87 is standard value
         goc_goc = {'K': 20.00, 'Q': 1.12, 'Tsyn': 5.00, 'Erev': -80.}
         mli_goc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
@@ -48,7 +49,7 @@ def get_connectivity_and_synapses_matrix(NAME, SI_units=True, number=5):
         mli_pc = {'K': 7.12, 'Q': 1.36, 'Tsyn': 4.67, 'Erev': -80.}
         pc_pc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
         
-               # Riempio per colonna - leggo per colonna
+        # Riempio per colonna - leggo per colonna
         M[:, 0] = [mf_grc.copy(), grc_grc.copy(), goc_grc.copy(), mli_grc.copy(), pc_grc.copy()]  # post-synaptic: grc
         M[:, 1] = [mf_goc.copy(), grc_goc.copy(), goc_goc.copy(), mli_goc.copy(), pc_goc.copy()]  # post-synaptic: goc
         M[:, 2] = [mf_mli.copy(), grc_mli.copy(), goc_mli.copy(), mli_mli.copy(), pc_mli.copy()]  # post-synaptic: mli
@@ -61,8 +62,9 @@ def get_connectivity_and_synapses_matrix(NAME, SI_units=True, number=5):
         M[0, 3]['name'] = 'to_pc'
         M[0, 4]['name'] = 'to_mf'
 
+    elif NAME == 'CRBL_CONFIG_20PARALLEL_wN_PLOS23_Kgocgrc_red': #THIS CONFIGURATION IS THE ONE USED FOR PREDICTION
 
-    elif NAME == 'CRBL_CONFIG_20PARALLEL_wN_PLOS23_Kgocgrc_red':
+        print('I AM THE CONFIG USED IN PREDICTION!!!')
         # to mf -------------------------------------------------------
         mf_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
         grc_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
@@ -72,27 +74,27 @@ def get_connectivity_and_synapses_matrix(NAME, SI_units=True, number=5):
         # to grc -------------------------------------------------------
         mf_grc = {'K': 4., 'Q': 0.23, 'Tsyn': 1.90, 'Erev': 0.}
         grc_grc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        goc_grc = {'K': 3.50*0.5, 'Q': 0.36, 'Tsyn': 4.50, 'Erev': -80.}
+        goc_grc = {'K': 3.50*0.5, 'Q': 0.36, 'Tsyn': 4.50, 'Erev': -80.} #GoC powers off the GrC --> reduction of 50% of Kgoc_grc
         mli_grc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
         pc_grc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        # to goc Kgrc = Kp*factor + Ka ; Qgrc = (Qa*n_syn_a*Ka+Qp*n_syn_p*Kp*factor)/(Ka+Kp*factor)-------------------------------------------------------
+        # to goc ------------------------------------------------------
         #mf_goc = {'K': 57.1, 'Q': 0.24, 'Tsyn': 5., 'Erev': 0.}
         mf_goc = {'K': 35., 'Q': 0.24, 'Tsyn': 5.00, 'Erev': 0.}
-        grc_goc = {'K': 530*0.25, 'Q': 0.437, 'Tsyn': 1.25, 'Erev': 0.} #Q normlaized per parallel and ascending -- 0.87 is standard value
+        grc_goc = {'K': 530*0.25, 'Q': 0.437, 'Tsyn': 1.25, 'Erev': 0.} #GoC powers off the GrC --> reduction of 75% Kgrc_goc
         goc_goc = {'K': 20.00, 'Q': 1.12, 'Tsyn': 5.00, 'Erev': -80.}
         mli_goc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
         pc_goc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
         # to mli -----------------------------------------------------------------------
         mf_mli = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        grc_mli = {'K': 272., 'Q': 0.15, 'Tsyn': 0.64, 'Erev': 0.} #grc_to_mli NO norm (pf_Stell*0.2 + pf_bask*0.2)
+        grc_mli = {'K': 272, 'Q': 0.15, 'Tsyn': 0.64, 'Erev': 0.} 
         goc_mli = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        mli_mli = {'K': 15.66, 'Q': 0.531, 'Tsyn': 2.00, 'Erev': -80.} #mli_to_mli norm for bask and stell -- normalizzo se il presyn è diverso (in grc ho SOLO pfs)
+        mli_mli = {'K': 15.66, 'Q': 0.531, 'Tsyn': 2.00, 'Erev': -80.}
         pc_mli = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
         # to pc -------------------------------------------------------------------------
         mf_pc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        grc_pc = {'K': 392.00, 'Q': 0.275, 'Tsyn': 3.50, 'Erev': 0.} #Q normalized per parallel and ascending -- 0.55 is standard value
+        grc_pc = {'K': 392.00, 'Q': 0.275, 'Tsyn': 3.50, 'Erev': 0.}
         goc_pc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        mli_pc = {'K': 7.12, 'Q': 0.60, 'Tsyn': 4.67, 'Erev': -80.}
+        mli_pc = {'K': 7.12, 'Q': 0.60, 'Tsyn': 4.67, 'Erev': -80.} #Qmli_pc "standard" for this config is 0.60 BUT we tried diff vals and probably in 0.68 - 0.97 we have a critical point (change of stability of the system)
         pc_pc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
         
         # Riempio per colonna - leggo per colonna
@@ -107,105 +109,6 @@ def get_connectivity_and_synapses_matrix(NAME, SI_units=True, number=5):
         M[0, 2]['name'] = 'to_mli'
         M[0, 3]['name'] = 'to_pc'
         M[0, 4]['name'] = 'to_mf'
-
-
-    elif NAME == 'CRBL_CONFIG_20PARALLEL_wN_PLOS23_Qgrcpc_untouch':
-        # MLI AND PC: ALL PARAMS N-NORMALIZED, K PARALLEL TO OTHER POP * 0.2
-        ######################### HO MESSO Q * K!!!!!
-        ######################## THIS CONFIG = SAME RATIONALE OF PLOS 2023
-        # to mf -------------------------------------------------------
-        mf_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        grc_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        goc_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        mli_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        pc_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        # to grc -------------------------------------------------------
-        mf_grc = {'K': 4., 'Q': 0.23, 'Tsyn': 1.90, 'Erev': 0.}
-        grc_grc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        goc_grc = {'K': 3.50, 'Q': 0.36, 'Tsyn': 4.50, 'Erev': -80.}
-        mli_grc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        pc_grc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        # to goc Kgrc = Kp*factor + Ka ; Qgrc = (Qa*n_syn_a*Ka+Qp*n_syn_p*Kp*factor)/(Ka+Kp*factor)-------------------------------------------------------
-        #mf_goc = {'K': 57.1, 'Q': 0.24, 'Tsyn': 5., 'Erev': 0.}
-        mf_goc = {'K': 35., 'Q': 0.24, 'Tsyn': 5.00, 'Erev': 0.}
-        grc_goc = {'K': 530, 'Q': 0.437, 'Tsyn': 1.25, 'Erev': 0.} #Q normlaized per parallel and ascending -- 0.87 is standard value
-        goc_goc = {'K': 20.00, 'Q': 1.12, 'Tsyn': 5.00, 'Erev': -80.}
-        mli_goc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        pc_goc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        # to mli -----------------------------------------------------------------------
-        mf_mli = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        grc_mli = {'K': 272., 'Q': 0.15, 'Tsyn': 0.64, 'Erev': 0.} #grc_to_mli NO norm (pf_Stell*0.2 + pf_bask*0.2)
-        goc_mli = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        mli_mli = {'K': 15.66, 'Q': 0.531, 'Tsyn': 2.00, 'Erev': -80.} #mli_to_mli norm for bask and stell -- normalizzo se il presyn è diverso (in grc ho SOLO pfs)
-        pc_mli = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        # to pc -------------------------------------------------------------------------
-        mf_pc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        grc_pc = {'K': 392.00, 'Q': 0.55, 'Tsyn': 3.50, 'Erev': 0.} #Q untouch =  0.55 is standard value
-        goc_pc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        mli_pc = {'K': 7.12, 'Q': 1.36, 'Tsyn': 4.67, 'Erev': -80.}
-        pc_pc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-
-
-        # Riempio per colonna - leggo per colonna
-        M[:, 0] = [mf_grc.copy(), grc_grc.copy(), goc_grc.copy(), mli_grc.copy(), pc_grc.copy()]  # post-synaptic: grc
-        M[:, 1] = [mf_goc.copy(), grc_goc.copy(), goc_goc.copy(), mli_goc.copy(), pc_goc.copy()]  # post-synaptic: goc
-        M[:, 2] = [mf_mli.copy(), grc_mli.copy(), goc_mli.copy(), mli_mli.copy(), pc_mli.copy()]  # post-synaptic: mli
-        M[:, 3] = [mf_pc.copy(), grc_pc.copy(), goc_pc.copy(), mli_pc.copy(), pc_pc.copy()]  # post-synaptic: pc
-        M[:, 4] = [mf_mf.copy(), grc_mf.copy(), goc_mf.copy(), mli_mf.copy(), pc_mf.copy()]  # post-synaptic: mf
-
-        M[0, 0]['name'] = 'to_grc'
-        M[0, 1]['name'] = 'to_goc'
-        M[0, 2]['name'] = 'to_mli'
-        M[0, 3]['name'] = 'to_pc'
-        M[0, 4]['name'] = 'to_mf'
-
-
-    elif NAME == 'CRBL_CONFIG_20PARALLEL_wN_PLOS23_redKmfGoC':
-        # to mf -------------------------------------------------------
-        mf_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        grc_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        goc_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        mli_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        pc_mf = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        # to grc -------------------------------------------------------
-        mf_grc = {'K': 4., 'Q': 0.23, 'Tsyn': 1.90, 'Erev': 0.}
-        grc_grc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        goc_grc = {'K': 3.50, 'Q': 0.36, 'Tsyn': 4.50, 'Erev': -80.}
-        mli_grc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        pc_grc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        # to goc Kgrc = Kp*factor + Ka ; Qgrc = (Qa*n_syn_a*Ka+Qp*n_syn_p*Kp*factor)/(Ka+Kp*factor)-------------------------------------------------------
-        #mf_goc = {'K': 57.1, 'Q': 0.24, 'Tsyn': 5., 'Erev': 0.}
-        mf_goc = {'K': 15., 'Q': 0.24, 'Tsyn': 5.00, 'Erev': 0.} #PLOS Kmfgoc = 35 - QUI FURTHER REDUCTION: 15
-        grc_goc = {'K': 530, 'Q': 0.437, 'Tsyn': 1.25, 'Erev': 0.} #Q normlaized per parallel and ascending -- 0.87 is standard value
-        goc_goc = {'K': 20.00, 'Q': 1.12, 'Tsyn': 5.00, 'Erev': -80.}
-        mli_goc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        pc_goc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        # to mli -----------------------------------------------------------------------
-        mf_mli = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        grc_mli = {'K': 272., 'Q': 0.15, 'Tsyn': 0.64, 'Erev': 0.} #grc_to_mli NO norm (pf_Stell*0.2 + pf_bask*0.2)
-        goc_mli = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        mli_mli = {'K': 15.66, 'Q': 0.531, 'Tsyn': 2.00, 'Erev': -80.} #mli_to_mli norm for bask and stell -- normalizzo se il presyn è diverso (in grc ho SOLO pfs)
-        pc_mli = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        # to pc -------------------------------------------------------------------------
-        mf_pc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        grc_pc = {'K': 392.00, 'Q': 0.275, 'Tsyn': 3.50, 'Erev': 0.} #Q normalized per parallel and ascending -- 0.55 is standard value
-        goc_pc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-        mli_pc = {'K': 7.12, 'Q': 1.36, 'Tsyn': 4.67, 'Erev': -80.}
-        pc_pc = {'K': 0., 'Q': 0., 'Tsyn': 0., 'Erev': 0.}
-
-        # Riempio per colonna - leggo per colonna
-        M[:, 0] = [mf_grc.copy(), grc_grc.copy(), goc_grc.copy(), mli_grc.copy(), pc_grc.copy()]  # post-synaptic: grc
-        M[:, 1] = [mf_goc.copy(), grc_goc.copy(), goc_goc.copy(), mli_goc.copy(), pc_goc.copy()]  # post-synaptic: goc
-        M[:, 2] = [mf_mli.copy(), grc_mli.copy(), goc_mli.copy(), mli_mli.copy(), pc_mli.copy()]  # post-synaptic: mli
-        M[:, 3] = [mf_pc.copy(), grc_pc.copy(), goc_pc.copy(), mli_pc.copy(), pc_pc.copy()]  # post-synaptic: pc
-        M[:, 4] = [mf_mf.copy(), grc_mf.copy(), goc_mf.copy(), mli_mf.copy(), pc_mf.copy()]  # post-synaptic: mf
-
-        M[0, 0]['name'] = 'to_grc'
-        M[0, 1]['name'] = 'to_goc'
-        M[0, 2]['name'] = 'to_mli'
-        M[0, 3]['name'] = 'to_pc'
-        M[0, 4]['name'] = 'to_mf'
-
 
     elif NAME == 'CRBL_CONFIG_20PARALLEL_wN_MLI_NO_NORM':
         #K PARALLEL TO OTHER POP * 0.2
