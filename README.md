@@ -4,7 +4,7 @@
 
 ## Description
 
-This repository contains the implementation of the **Cerebellar Mean Field v25 rev00**, a computational model based on region-specific mean-field dynamics. The model is developed to enhance the understanding of cerebellar network dynamics and its neuromodulatory effects.
+This repository contains the implementation of the **Cerebellar Mean Field v25 rev00**, a computational model based on mean-field formalism presented in Zerlaut et al., 2018, J Comput Neurosci. The model is developed based on the methods presented in **Lorenzi et al., 2023, Plos Comp Bio** and update to reporduce the cerebellar dynamics tuned on awake states.
 
 ## Model Parameters
 
