@@ -4,12 +4,14 @@
 
 ## Description
 
-This repository contains the implementation of the **Cerebellar Mean Field v25 rev00**, a computational model based on mean-field formalism presented in Zerlaut et al., 2018, J Comput Neurosci. The model is developed based on the methods presented in **Lorenzi et al., 2023, Plos Comp Bio** and update to reporduce the cerebellar dynamics tuned on awake states.
+This repository contains the implementation of the **Cerebellar Mean Field v25 rev00**, a computational model based on mean-field formalism presented in **Zerlaut et al., 2018, J Comput Neurosci**. The model is developed based on the methods presented in **Lorenzi et al., 2023, Plos Comp Bio** and update to reporduce the cerebellar dynamics tuned on awake states.
 
 ## Model Parameters
 
 The parameters are derived following the same rationale used in **Lorenzi et al., 2023, Plos Comp Bio**. 
-Further modifications were needed due to the awake-state of the SNN, i.e. a tuning of the granular layer parameters:  reduction of 75% of Kgrc_goc; reduction of 50% of Kgoc_grc.
+Further modifications were needed due to the awake-state of the SNN, i.e. a tuning of the granular layer parameters:  
+reduction of 75% of Kgrc_goc;  
+reduction of 50% of Kgoc_grc  
 The following table summarizes the parameters used to derive the Mean Field (MF) configuration (see syn_and_connec_library.py, configuration: 'CRBL_CONFIG_20PARALLEL_wN_PLOS23_Kgocgrc_red')
 
 ### Granule Cells (GrC)
