@@ -1,6 +1,6 @@
 # Cerebellar Mean Field v25 rev00
 
-**Built on SNN awake v.0.5.0**
+**Built on SNN awake v.0.5.0 (BSB version updated at Jan. 30th, 2025)**
 
 ## Description
 
