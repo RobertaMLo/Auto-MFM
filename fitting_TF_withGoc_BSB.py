@@ -695,6 +695,6 @@ def plot_TF_numerical_vs_analytical_2D(MEANfreq, SDfreq, fiSim, Fe_eff_grc, w,
         print('Mean diff +- stdev (numTF-SemiAnalyticTF)', diff_mean, '+-', diff_sd)
         print('Min diff', diff_min)
         
-        plt.savefig(FOLDER+'_alfa'+str(alpha)+'.pdf',dpi=300)
+        plt.savefig(FOLDER+'_alfa'+str(alpha)+'.pdf',dpi=300, bbox_inches='tight')
 
         plt.show()

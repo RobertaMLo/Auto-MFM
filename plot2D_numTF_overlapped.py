@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 #path = '/home/bcc/bsb-ws/CRBL_MF_Model/20220519_155731_GoC_CRBL_CONFIG_20PARALLEL_wN_tsim5'
 #path='/home/bcc/bsb-ws/CRBL_MF_Model/20220531_040209_GoC_CRBL_CONFIG_20PARALLEL_wN_GoCKiNsyn_tsim5'
 
-path = '/home/bcc/projects/BSB4_demo/cerebellum_zmin_Ie1.2/20250210_124952_GoC_CRBL_CONFIG_20PARALLEL_wN_PLOS23_redKmfGoC_tsim5'
+path = '/home/bcc/projects/BSB4_demo/cerebellum_zmin_Ie1.2/20250212_124057_GoC_CRBL_CONFIG_20PARALLEL_wN_PLOS23_Kgocgrc_red_tsim5'
 
 
 fe = np.load(path + '/fe.npy', allow_pickle=True)

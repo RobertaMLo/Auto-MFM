@@ -78,7 +78,7 @@ def plot_cmap_2D_template(pop_name, y_inhib_label, x_excit_label, fold_name, fon
     axcb.ax.tick_params(labelsize=15)
     plt.xlabel(x_excit_label, fontsize = font_size+1 )
     plt.ylabel(y_inhib_label, fontsize = font_size+1)
-    plt.savefig(fold_name +'.pdf',dpi = 300)
+    plt.savefig(fold_name +'.png', dpi = 300, bbox_inches='tight')
     plt.show()
 
 
@@ -101,6 +101,7 @@ if __name__ == '__main__':
     FOLDER = args.FOLDER
 
     MEANfreq, sd_freq, w, Fi, Fe, delta_g, delta_i, params, sim_params = load_my_data_BSB(FOLDER, adap_bool)
+    print('SIMULATION PARAMETERS: ')
 
 
     if 'GoC' in FOLDER:
