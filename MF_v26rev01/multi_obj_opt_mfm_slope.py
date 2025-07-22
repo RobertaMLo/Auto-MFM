@@ -24,16 +24,16 @@ def optimization(problem, algorithm, xtol=1e-8, cvtol=1e-8, ftol=25e-4, period=3
     termination = DefaultMultiObjectiveTermination(
         xtol=xtol, cvtol=cvtol, ftol=ftol, period=period, n_max_gen=n_gen, n_max_evals=n_max_evals
     )
-    results = minimize(problem, algorithm, termination, seed=1, verbose=True) #STANDARD FOR NSGA2
-    #results = minimize(problem, algorithm, ('n_gen', 100), seed=1, verbose=True)  # STANDARD FOR NSGA
+    #results = minimize(problem, algorithm, termination, seed=1, verbose=True) #STANDARD FOR NSGA2
+    results = minimize(problem, algorithm, ('n_gen', 100), seed=1, verbose=True)  # STANDARD FOR NSGA
     #results = minimize(problem, algorithm, ('n_gen', 40), seed=1, verbose=True)
     return results
 
 
-xl = np.array([1.8, 1.8, 1.6, 2.2])
+xl = np.array([1.8, 1.8, 1.6, 2.1])
 xu = np.array([2.2, 2.2, 2.0, 10.0])
 x0 = np.array([2.0, 2.0, 1.8, 2.3])
-sigma = 0.3 * (xu - xl)
+sigma = 0.4 * (xu - xl)
 
 class AlphaOptimizationMF(Problem):
     def __init__(self, snn_data_path, input_freqs, ci_vec_base, fixed_args):
@@ -99,58 +99,74 @@ class AlphaOptimizationMF(Problem):
 
         return np.average(X[:, [0, 1, 9, 10]], axis = 0)
 
+
     def _evaluate(self, X, out, *args, **kwargs):
         errors = []
+        lambda_weight = 0.0  # 0.0 = solo slope, 1.0 = solo MSE
 
         for alpha_set in X:
-            total_err = 0
-            invalid = False
+            local_errors = []  # Ogni processo raccoglie (f, loss)
 
-            local_errors = []  # Each rank = error (i.e., local error)
+            sim_means_per_cell = {cell: [] for cell in ['granule_cell', 'golgi_cell', 'MLI_cell', 'purkinje_cell']}
+            freqs_done = []
 
             for i, f in enumerate(self.freqs):
                 if i % size != rank:
-                    continue  # Non è il mio turno quindi aspetto
+                    continue  # non è il turno di questo processo
 
-                # Mi printo un po' di cose che non si sa mai se ho capito
                 print(f"[RANK {rank}] Simulating for freq: {f}")
                 mf_rates = self.simulate_MF(alpha_set, f)
 
                 if np.any(np.isnan(mf_rates)) or np.any(np.isinf(mf_rates)):
-                    print(f"[RANK {rank}] INVALID MF RATES → alphas: {alpha_set}, freq: {f}, rates: {mf_rates}")
-                    local_errors.append((f, 1e6 * 4))  # Penalizzazione forte if I have nan in mse part of equation
+                    print(f"[RANK {rank}] INVALID MF RATES: alphas: {alpha_set}, freq: {f}, rates: {mf_rates}")
+                    local_errors.append((f, 1e6 * 4))  # Penalità per valori non validi
                     continue
 
-                err_f = 0
+                freqs_done.append(f)
                 for i_cell, cell in enumerate(['granule_cell', 'golgi_cell', 'MLI_cell', 'purkinje_cell']):
+                    sim_means_per_cell[cell].append(mf_rates[i_cell])
 
-                    snn_mean = np.interp(f, self.snn_data[cell]['freqs'], self.snn_data[cell]['mean'])
-                    snn_std = np.interp(f, self.snn_data[cell]['freqs'], self.snn_data[cell]['std'])
+            # Calcolo loss per ogni cellula su tutte le frequenze simulate
+            cell_losses = []
+            for cell in sim_means_per_cell:
+                sim_means = np.array(sim_means_per_cell[cell])
+                target_freqs = np.array([f for f in freqs_done])
+                target_means = np.array([np.interp(f, self.snn_data[cell]['freqs'], self.snn_data[cell]['mean']) for f in freqs_done])
+                target_stds = np.array([np.interp(f, self.snn_data[cell]['freqs'], self.snn_data[cell]['std']) for f in freqs_done])
+                safe_stds = np.clip(target_stds, 1e-6, None)
 
-                    #print('========================DEBUG -----------------SNN MEAN SD:', snn_mean, snn_std)
 
-                    safe_std = snn_std if snn_std > 1e-6 else 1e-6
+                # MSE normalizzato
+                mse = np.mean(((sim_means - target_means) / safe_stds) ** 2)
 
-                    err = ((mf_rates[i_cell] - snn_mean) / safe_std) ** 2
-                    #err = (mf_rates[i_cell] - snn_mean) ** 2
-                    err_f += err
+                # Errore sulla pendenza (slope)
+                slope_mf = np.polyfit(target_freqs, sim_means, deg=1)[0]
+                slope_snn = np.polyfit(target_freqs, target_means, deg=1)[0]
 
-                local_errors.append((f, err_f))
+                print(cell, "---- SLOPE MF, SNN: ", slope_mf, slope_snn)
+                slope_loss = (slope_mf - slope_snn) ** 2
 
-            # Raccoglie risultati da tutti i processi!!! N.B. Remember that a process do only a bunch of freqs.
+                # Combinazione di MSE e slope
+                cell_loss = lambda_weight * mse + (1 - lambda_weight) * slope_loss
+
+                cell_losses.append(cell_loss)
+
+            # Sommo le perdite per le celle simulate da questo rank
+            local_errors.append((None, np.mean(cell_losses)))
+
+            # Raccoglie tutti i risultati
             all_errors = comm.gather(local_errors, root=0)
 
             if rank == 0:
-                merged = {}
+                merged_losses = []
                 for err_list in all_errors:
                     for f_val, err in err_list:
-                        merged[f_val] = err
-                total_err = sum(merged.values())
-
-                print(f"\n[RANK 0] Alphas: {alpha_set} → Total Error: {total_err:.4f}")
+                        if f_val is None:
+                            merged_losses.append(err)
+                total_err = np.mean(merged_losses)
+                print(f"\n[RANK 0] Alphas: {alpha_set} → Total Error (combined): {total_err:.4f}")
                 errors.append(total_err)
 
-        # Solo il rank 0 aggiorna i risultati finali
         if rank == 0:
             out["F"] = np.array(errors).reshape(-1, 1)
 
@@ -172,7 +188,7 @@ problem = AlphaOptimizationMF(
 )
 
 ## value to test the algorithm (i.e., high tol and low popsize)
-tol = 1e-5
+tol = 1e-3
 pops = 8 #default is 24
 n_gen = 50 #default 100
 
@@ -186,7 +202,6 @@ algorithm = NSGA2(pop_size=pops)
 #Default option : cvtol=1e-8, ftol=25e-4, period=30, n_gen=100, n_max_evals=10000
 # In function oprimization, during each generation, pymoo call function _evaluate! NO NEED TO DO EXPLICITLY
 results = optimization(problem, algorithm, xtol=tol, n_gen=n_gen)
-
 best_idx = np.argmin(results.F)
 best_alphas = results.X[best_idx]
 print("Best alpha values:", best_alphas)
