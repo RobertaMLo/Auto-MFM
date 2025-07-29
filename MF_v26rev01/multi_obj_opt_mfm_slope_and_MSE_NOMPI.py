@@ -19,8 +19,8 @@ def optimization(problem, algorithm, xtol=1e-8, cvtol=1e-8, ftol=25e-4, period=3
     results = minimize(problem, algorithm, ('n_gen', n_gen), seed=1, verbose=True)  # STANDARD FOR NSGA
     return results
 
-xl = np.array([1.8, 1.8, 1.6, 2.1])
-xu = np.array([2.2, 2.2, 2.0, 10.0])
+xl = np.array([1.5, 1.5, 1.6, 2.1])
+xu = np.array([2.5, 2.5, 2.0, 10.0])
 
 class AlphaOptimizationMF(Problem):
     def __init__(self, snn_data_path, input_freqs, ci_vec_base, fixed_args):
@@ -74,7 +74,7 @@ class AlphaOptimizationMF(Problem):
     def _evaluate(self, X, out, *args, **kwargs):
         mse_errors = []       # Obiettivo 1: MSE
         slope_errors = []     # Obiettivo 2: slope solo PC
-        print("\n================== EVALUATE ==============================")
+        print(" ================== EVALUATE ==============================")
 
         for alpha_set in X:
             local_mse = []
@@ -98,6 +98,7 @@ class AlphaOptimizationMF(Problem):
                     safe_std = snn_std if snn_std > 1e-6 else 1e-6  # just to be sure
 
                     err = abs((mf_rates[i_cell] - snn_mean)/safe_std)
+
                     err_f += err
 
                     print(f, cell, 'mf_rates', mf_rates[i_cell], 'snn_mean', snn_mean, 'err', err)
@@ -128,15 +129,15 @@ class AlphaOptimizationMF(Problem):
             slope_errors.append(slope_error)
 
         out["F"] = np.column_stack([mse_errors, slope_errors])
-        print(">>>>> F: mse_errore and slope_errors: ", out["F"])
+        print("F: mse_errore and slope_errors: ", out["F"])
 
         results_dict = {
             "alphas": X,
             "mse": np.array(mse_errors),
             "slope": np.array(slope_errors)
         }
-        np.savez("./pareto_solutions_temp.npz", **results_dict)
-        print(" ===============================================================\n")
+        np.savez("./pareto_solutions_temp_24_100.npz", **results_dict)
+        print(" ===============================================================")
 
 # # Here problem is defined as a class
 problem = AlphaOptimizationMF(
@@ -152,13 +153,13 @@ problem = AlphaOptimizationMF(
 )
 
 # === OPTIM PARTY IS STARTING=== #
-tol = 1e-5
-pops = 8
-n_gen = 10
+tol = 1e-8
+pops = 24
+n_gen = 100
 
 algorithm = NSGA2(pop_size=pops)
 
 results = optimization(problem, algorithm, xtol=tol, n_gen=n_gen)
 
-np.savez("final_pareto_front.npz", alphas=results.X, mse=results.F[:, 0], slope=results.F[:, 1])
+np.savez("final_pareto_front_24_100.npz", alphas=results.X, mse=results.F[:, 0], slope=results.F[:, 1])
 print("Final fronte saved", results.X.shape)

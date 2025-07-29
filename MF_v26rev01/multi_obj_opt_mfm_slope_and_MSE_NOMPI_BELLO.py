@@ -143,7 +143,8 @@ class AlphaOptimizationMF(MFOptimizationBase):
 
                     safe_std = snn_std if snn_std > 1e-6 else 1e-6  # just to be sure
 
-                    err = abs((mf_rates[i_cell] - snn_mean)/safe_std)
+                    #err = abs((mf_rates[i_cell] - snn_mean)/safe_std)
+                    err = abs((mf_rates[i_cell] - snn_mean))
                     err_f += err
 
                     print(f, cell, 'mf_rates', mf_rates[i_cell], 'snn_mean', snn_mean, 'err', err)
@@ -202,13 +203,13 @@ problem = AlphaOptimizationMF(
 )
 
 # set parameters of optimization
-tol = 1e-5
+tol = 1e-6
 pops = 8
-n_gen = 10
+n_gen = 100
 
 algorithm = NSGA2(pop_size=pops)
 #run the real optimization
 results = optimization(problem, algorithm, xtol=tol, n_gen=n_gen)
 #save Pareto Front
-np.savez("final_pareto_front_bello_2.npz", alphas=results.X, mse=results.F[:, 0], slope=results.F[:, 1])
+np.savez("final_pareto_front_bello_MAE_8_100.npz", alphas=results.X, mse=results.F[:, 0], slope=results.F[:, 1])
 print("Final fronte saved", results.X.shape)
