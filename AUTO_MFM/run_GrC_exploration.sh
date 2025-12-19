@@ -1,0 +1,14 @@
+#!/bin/bash
+
+ROOT_DIR='./'                                       #where outputs will be saved
+NTWK="CRBL_CONFIG_AUTOMFM_AWAKE_FIT_5"              #Netowrk with syn params
+#CELL="GrC_IB2KO"                                    #cell type
+CELL="GrC_WT"
+
+python3 numTF_computation_BSB.py "$ROOT_DIR" "$CELL" "$NTWK"
+
+##trick: since I cannot forcast YYMMDD_hhmmss of the TF folder just created above,
+##I took whatever ends with NTWK and I select the latest created
+LATEST_FOLDER=$(ls -td *_"$NTWK"* | head -n 1)
+echo "Numerical TF folder created:" "$LATEST_FOLDER"
+python3 plot2D_numTF.py -FOLDER "$LATEST_FOLDER"
