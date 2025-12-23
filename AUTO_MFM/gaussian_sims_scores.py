@@ -7,6 +7,8 @@ import numpy as np
 from scipy.stats import pearsonr
 from sklearn.metrics import mutual_info_score
 import seaborn as sns
+import pandas as pd
+
 
 def load_my_file(basepath, basename, sigma, amp):
     filename = os.path.join(basepath, f"{basename}{sigma}_{amp}.txt")
@@ -74,11 +76,12 @@ def peak_analysis(signal, prominence, t, ttrans, color='green', color_peak='blac
 
     plt.figure(figsize=(3.1, 2.4))
     plt.plot(t, signal_notrans, color=color, linewidth=0.9)
-    plt.plot(t[peaks], signal_notrans[peaks], "*", color=color_peak)
+    #plt.plot(t[peaks], signal_notrans[peaks], "*", color=color_peak)
     # plt.plot(t[pause], signal_notrans[pause], "x", color = color_peak)
 
     plt.ylabel('Activity [Hz]', fontsize=12)
-    plt.yticks([np.min(signal_notrans), (max_act + np.min(signal_notrans))/2, max_act])
+    #plt.yticks([np.min(signal_notrans), (max_act + np.min(signal_notrans))/2, max_act])
+    plt.yticks(([90, 195, 300]))
 
     plt.xticks([round(np.min(t), 2), round(np.max(t) / 2, 2), round(np.max(t), 2)])
     plt.xlabel('time [s]', fontsize=12)
@@ -87,7 +90,7 @@ def peak_analysis(signal, prominence, t, ttrans, color='green', color_peak='blac
     plt.gca().spines['right'].set_visible(False)
 
     if save_img:
-        plt.savefig(name_fig + '.png', dpi=300, bbox_inches="tight")
+        #plt.savefig(name_fig + '.png', dpi=300, bbox_inches="tight")
         plt.savefig(name_fig + '.pdf', dpi=300, bbox_inches="tight")
 
     plt.show()
@@ -97,7 +100,7 @@ def peak_analysis(signal, prominence, t, ttrans, color='green', color_peak='blac
 import csv
 
 
-def run_peak_analysis_on_all(all_data, sigmas, amps, t, path_for_csv = "./", prominence=0.3, ttrans=100):
+def run_peak_analysis_on_all(all_data, sigmas, amps, t, path_for_csv = "./", prominence=0.3, ttrans=100, save_csv = False):
     """
     Run the function "peak_analysis" and save the results in three different CSV one per pop(PC, MLI, GoC, GrC).
     """
@@ -130,31 +133,32 @@ def run_peak_analysis_on_all(all_data, sigmas, amps, t, path_for_csv = "./", pro
                                   save_img=False,
                                   name_fig=f"{pop}_sigma{sigma}_amp{amp}")
 
+                if save_csv:
                 # Save data in the csv
-                with open(path_for_csv + f"{pop}_scores.csv", "a", newline="") as f:
-                    writer = csv.writer(f)
-                    writer.writerow([
-                        sigma,
-                        amp,
-                        #list(peak_act),   # If I want to re-add I have to add also the names
-                        max_act,
-                        valley_min,
-                        diff_peak_max_pause,
-                        diff_pause_baseline,
-                        AUC
-                    ])
+                    with open(path_for_csv + f"{pop}_scores.csv", "a", newline="") as f:
+                        writer = csv.writer(f)
+                        writer.writerow([
+                            sigma,
+                            amp,
+                            #list(peak_act),   # If I want to re-add I have to add also the names
+                            max_act,
+                            valley_min,
+                            diff_peak_max_pause,
+                            diff_pause_baseline,
+                            AUC
+                        ])
 
 
 def compute_all_score_matrices(all_data, sigmas, amps, t, prominence=0.3, ttrans=100, pop="PC"):
     """
-    Calcola tutte le matrici sigma × amp per:
+    Compute the following scores sigma × amp:
     - AUC
     - peak_max
     - valley_min
     - diff_peak_pause
     - diff_pause_baseline
-    con il controllo richiesto:
-    se valley_min == 0 → diff_peak_pause e diff_baseline diventano NaN.
+
+    If valley_min == 0 → diff_peak_pause; diff_baseline diventano = NaN.
     """
 
     AUC_mat = np.zeros((len(amps), len(sigmas)))
@@ -173,7 +177,8 @@ def compute_all_score_matrices(all_data, sigmas, amps, t, prominence=0.3, ttrans
                               prominence=prominence,
                               t=t,
                               ttrans=ttrans,
-                              save_img=False)
+                              save_img=True,
+                              name_fig=f"{pop}_sigma{sigma}_amp{amp}_peak")
 
             AUC_mat[i, j] = AUC
             peak_mat[i, j] = max_act
@@ -196,6 +201,87 @@ def compute_all_score_matrices(all_data, sigmas, amps, t, prominence=0.3, ttrans
     }
 
 
+def compute_all_score_matrices_mu3sigma(all_data, sigmas, amps, t,
+                                        prominence=0.3, ttrans=100, pop="PC"):
+    """
+    See compute_all_score_matrices for docs.
+    Here the only difference is that the scores are related to the stimulus onset (e.g. the bell for gaussian)
+    """
+
+
+    AUC_mat = np.zeros((len(amps), len(sigmas)))
+    peak_mat = np.zeros((len(amps), len(sigmas)))
+    valley_mat = np.zeros((len(amps), len(sigmas)))
+    diff_peak_pause_mat = np.zeros((len(amps), len(sigmas)))
+    diff_baseline_mat = np.zeros((len(amps), len(sigmas)))
+
+
+    mu = 0.5 * (t[0] + t[-1])
+
+    for i, amp in enumerate(amps):
+        for j, sigma in enumerate(sigmas):
+
+
+            signal_full = all_data[(sigma, amp)]["signals"][pop]
+
+
+            t_min = mu - 3 * sigma
+            t_max = mu + 3 * sigma
+
+
+            mask = (t >= t_min) & (t <= t_max)
+
+
+            signal = signal_full[mask]
+            t_cut = t[mask]
+
+
+            peak_act, max_act, valley_min, diff_peak_max_pause, diff_pause_baseline, AUC = \
+                peak_analysis(signal,
+                              prominence=prominence,
+                              t=t_cut,
+                              ttrans=ttrans,
+                              save_img=False)
+
+            AUC_mat[i, j] = AUC
+            peak_mat[i, j] = max_act
+            valley_mat[i, j] = valley_min
+
+
+            if valley_min == 0:
+                diff_peak_pause_mat[i, j] = np.nan
+                diff_baseline_mat[i, j] = np.nan
+            else:
+                diff_peak_pause_mat[i, j] = diff_peak_max_pause
+                diff_baseline_mat[i, j] = diff_pause_baseline
+
+    return {
+        "AUC": AUC_mat,
+        "peak": peak_mat,
+        "valley": valley_mat,
+        "diff_peak_pause": diff_peak_pause_mat,
+        "diff_baseline": diff_baseline_mat
+    }
+
+
+def save_scores_to_csv(scores, sigmas, amps, prefix):
+    """
+    Function to save a score into a csv.
+    It's hard coded for rows and cols names, but can be used for each 2-params analysus
+
+    Input:
+    scores: dict of scores returned by compute_all_score_matrices_mu3sigma
+    sigmas, amps : arrrays, of the params of interest (here stdeva dn amplitude of gaussina)
+    prefix: string, to save the file as <prefix>_rest of the name
+
+    """
+    for key, mat in scores.items():
+        df = pd.DataFrame(mat, index=amps, columns=sigmas)
+        df.index.name = "Amp"
+        df.columns.name = "Sigma"
+        df.to_csv(f"{prefix}_{key}.csv")
+
+
 
 def plot_surface_3d(sigmas, amps, Z, title, zlabel):
 
@@ -215,12 +301,23 @@ def plot_surface_3d(sigmas, amps, Z, title, zlabel):
     fig.colorbar(surf, shrink=0.6, label=zlabel)
     plt.show()
 
+
 def get_stimulus_window(t, sigma):
-    mu = t[len(t)//2]
-    t_start = mu - 3*sigma
+    """
+    Function to get the stimulus window
+    Intended for a GAUSSIAN stimulus defined with a fixed sigma.
+    Input:
+    t = array, time of the simulation.
+    sigma = value (float), std deviation og the stimulus
+    Output:
+    idx_start, idx_end : int, index of the stimulus window (start & end)
+    """
+
+    mu = t[len(t)//2] #gaussian stimulus is centered at t/2
+    t_start = mu - 3*sigma #standard deviation factor is multiplied x3 as usual in dynamical analysis
     t_end   = mu + 3*sigma
 
-    # Indici corrispondenti
+    #searchsort return the indices of t_start. Convenient to look for indices when the array is ordered (ascending)
     idx_start = np.searchsorted(t, t_start)
     idx_end   = np.searchsorted(t, t_end)
 
@@ -228,15 +325,42 @@ def get_stimulus_window(t, sigma):
 
 
 def dynamic_pcc(x, y, window_size, step):
+    """
+    Function to calculate pcc in a pre-defined window.
+    Input:
+    x,y : arrays. The pcc is computed between x and y
+    window_size : int, size of the window
+    step : int, step size of the window
+    Output:
+    pcc_values: array of occ (dynamical pcc)
+    """
+
     pcc_values = []
-    for start in range(0, len(x) - window_size, step):
+
+    for start in range(0, len(x) - window_size, step): #if step < window_size, consecutive windows are overlapping.
         end = start + window_size
         r, _ = pearsonr(x[start:end], y[start:end])
         pcc_values.append(r)
+
     return np.array(pcc_values)
 
 
 def dynamic_mutual_information(x, y, window_size, step, bins=20):
+    """
+    Function to calculate the mutual information in a pre-defined window.
+    Input:
+    x,y : arrays. The mutual info is computed between x and y
+    window_size : int, size of the window
+    step : int, step size of the window
+    bins : int, number of bins. For mutual info, the signals must be discrete. They are converted in histograms of #bin
+
+    *** N.B.: Here #bin is fixed because mutual_info compare the distribution,
+    if I changed #bon between comparisons, I cant compare MI scores (different resolution!!) **
+
+    Output:
+    pcc_values: array of occ (dynamical pcc)
+    """
+
     mi_values = []
     for start in range(0, len(x) - window_size, step):
         end = start + window_size
@@ -244,6 +368,8 @@ def dynamic_mutual_information(x, y, window_size, step, bins=20):
         x_win = x[start:end]
         y_win = y[start:end]
 
+        #digitize to discretize my signal. bins = number of bin of the histograms.
+        # Each point of x_win is assigned to a bin
         x_binned = np.digitize(x_win, np.histogram(x_win, bins=bins)[1])
         y_binned = np.digitize(y_win, np.histogram(y_win, bins=bins)[1])
 
@@ -255,10 +381,23 @@ def dynamic_mutual_information(x, y, window_size, step, bins=20):
 
 def compute_pcc_mi_all(all_data, sigmas, amps, window_size, step, pop="PC"):
     """
-    Calcola PCC dinamico e MI dinamica tra input e PC
-    per tutte le combinazioni sigma × amp.
-    Ogni cella della matrice corrisponde a:
-    input(sigma, amp) vs PC(sigma, amp)
+    Function to compute the pcc and mutual info for the two scores intended to be analyzed.
+    Here sigma and amp are the score for which we want to analyze the input/output relation.
+    The function is inteded for gaussian input but generalizable for every input, with two relevant parameters.
+
+    Input:
+    all_data: dict, of the simulated data
+    sigmas: array of values of stdevs of gaussian input (params 1)
+    amps: array of values of amp  (params 2)
+    window_size: int, size of the window
+    step: int, step size of the window
+    pop: str, the population to analyze (must be a key in the all_data dictionary)
+
+    Output:
+    PCC_mat, MI_mat: 2Darrays, where each point corresponds to the mean of pcc, mutual info over the windows
+    for that combination (sigma, amp).
+    Note that here we choose the average as summary score, but it might be replaced by min or max
+
     """
 
     PCC_mat = np.zeros((len(amps), len(sigmas)))
@@ -267,15 +406,15 @@ def compute_pcc_mi_all(all_data, sigmas, amps, window_size, step, pop="PC"):
     for i, amp in enumerate(amps):
         for j, sigma in enumerate(sigmas):
 
-            # --- QUI GARANTIAMO LA CORRISPONDENZA ---
+            # input hard coded
             inp = all_data[(sigma, amp)]["signals"]["input"]
             pc  = all_data[(sigma, amp)]["signals"][pop]
 
-            # Calcolo dinamico
+            # Calling of my functions
             pcc_values = dynamic_pcc(inp, pc, window_size, step)
             mi_values  = dynamic_mutual_information(inp, pc, window_size, step)
 
-            # Salviamo la media (puoi cambiare in max, min, ecc.)
+            # Compute the "summary" score -- here we select the average
             PCC_mat[i, j] = np.nanmean(pcc_values)
             MI_mat[i, j]  = np.nanmean(mi_values)
 
@@ -284,6 +423,14 @@ def compute_pcc_mi_all(all_data, sigmas, amps, window_size, step, pop="PC"):
 
 
 def compute_pcc_mi_all_stimulus_window(all_data, sigmas, amps, t, window_size, step, pop="PC"):
+    """
+    See doc of compute_pcc_mi_all. HERE THE FUNCTION COMPUTE THE PCC AND MI GRIDS ONLY FOR THE STIMULUS WINDOW.
+    e.g., the bell of the gaussian stimulus
+
+    ** coding note: consider to merge in a unique function. Here the only difference is that this fun takes t as input
+    t: array, time of the simulation **
+    """
+
     PCC_mat = np.zeros((len(amps), len(sigmas)))
     MI_mat  = np.zeros((len(amps), len(sigmas)))
 
@@ -293,12 +440,12 @@ def compute_pcc_mi_all_stimulus_window(all_data, sigmas, amps, t, window_size, s
             inp = all_data[(sigma, amp)]["signals"]["input"]
             pc  = all_data[(sigma, amp)]["signals"][pop]
 
-            # --- Finestra dello stimolo ---
+            # Here I select ONLY the stimulus window
             idx_start, idx_end = get_stimulus_window(t, sigma)
             inp_win = inp[idx_start:idx_end]
             pc_win  = pc[idx_start:idx_end]
 
-            # --- Calcolo dinamico ---
+
             pcc_values = dynamic_pcc(inp_win, pc_win, window_size, step)
             mi_values  = dynamic_mutual_information(inp_win, pc_win, window_size, step)
 
@@ -308,38 +455,77 @@ def compute_pcc_mi_all_stimulus_window(all_data, sigmas, amps, t, window_size, s
     return PCC_mat, MI_mat
 
 
-def extract_dynamic_xy_stimulus(all_data, sigma, amp, t, window_size, step, pop="PC"):
-    inp = all_data[(sigma, amp)]["signals"]["input"]
-    pc  = all_data[(sigma, amp)]["signals"][pop]
-
-    idx_start, idx_end = get_stimulus_window(t, sigma)
-    inp_win = inp[idx_start:idx_end]
-    pc_win  = pc[idx_start:idx_end]
-
-    x_centers = []
-    y_centers = []
-
-    for start in range(0, len(inp_win) - window_size, step):
-        end = start + window_size
-        x_centers.append(np.mean(inp_win[start:end]))
-        y_centers.append(np.mean(pc_win[start:end]))
-
-    return np.array(x_centers), np.array(y_centers)
-
-
 def plot_heatmap(sigmas, amps, Z, title, label):
-    plt.figure(figsize=(8,6))
+
+    plt.figure(figsize=(4, 3))
     sns.heatmap(Z,
                 xticklabels=sigmas,
                 yticklabels=amps,
                 cmap="magma",
                 annot=False)
-    plt.xlabel("Sigma")
-    plt.ylabel("Amp")
-    plt.title(title)
+    plt.xlabel("Standard Deviation", fontsize=10)
+    plt.ylabel("Amplitude", fontsize=10)
+    plt.title(title, fontsize=10)
     plt.show()
 
 
+def plot_heatmap_multipanel(sigmas, amps, Z1, Z2, title1, title2, filename):
+
+    fig, axes = plt.subplots(1, 2, figsize=(3.6, 1.8))
+
+    ax1 = sns.heatmap(
+        Z1,
+        xticklabels=sigmas,
+        yticklabels=amps,
+        cmap="magma",
+        annot=False,
+        cbar=True,
+        ax=axes[0],
+        vmin = 0.09,
+        vmax =0.98
+    )
+
+    cbar1 = ax1.collections[0].colorbar
+    vmin, vmax = np.min(Z1), np.max(Z1)
+    vmin = 0.09
+    vmax = 0.98
+    ticks = np.linspace(vmin, vmax, 3)
+    ticks = [round(t, 2) for t in ticks]
+    cbar1.set_ticks(ticks)
+    cbar1.set_ticklabels([f"{t:.2f}" for t in ticks], fontsize=6)
+
+    ax1.set_title(title1, fontsize=8)
+    ax1.set_xlabel("σ", fontsize=8)
+    ax1.set_ylabel("A", fontsize=8)
+    ax1.tick_params(axis='both', labelsize=6)
+
+    ax2 = sns.heatmap(
+        Z2,
+        xticklabels=sigmas,
+        yticklabels=amps,
+        cmap="magma",
+        annot=False,
+        cbar=True,
+        ax=axes[1]
+    )
+
+    cbar2 = ax2.collections[0].colorbar
+    vmin, vmax = np.min(Z2), np.max(Z2)
+    ticks = np.linspace(vmin, vmax, 3)
+    ticks = [round(t, 2) for t in ticks]
+    cbar2.set_ticks(ticks)
+    cbar2.set_ticklabels([f"{t:.2f}" for t in ticks], fontsize=6)
+
+    ax2.set_title(title2, fontsize=8)
+    ax2.set_xlabel("σ", fontsize=8)
+    ax2.set_ylabel("", fontsize=7)
+    ax2.tick_params(axis='both', labelsize=7)
+
+    plt.tight_layout(pad=0.3)
+
+    plt.savefig(filename + ".pdf", format="pdf", dpi=300, bbox_inches="tight")
+
+    plt.show()
 
 
 if __name__ == '__main__':
@@ -355,67 +541,54 @@ if __name__ == '__main__':
     t = np.arange(0, sim_len, dt)
 
 
-    basepath = "gaussian_input_output"
-    basename = "gaussian_input"
+    basepath = "gaussian_input_hypo_65_output" #"gaussian_input_output" #"gaussian_input_hyper_65_output" #"gaussian_input_hypo_65_output"
+    basename = "gaussian_input_hyp_65" #"gaussian_input" #"gaussian_input_hyper_65" #"gaussian_input_hyp_65" #"gaussian_input_hyper_65"
     all_data = load_all_files(basepath, basename, sigmas, amps)
 
-    pc_signal = all_data[(0.05, 100)]["signals"]["PC"]
-    goc_signal = all_data[(0.05, 100)]["signals"]["GoC"]
-
+    ### Uncomment for debug:
+    #pc_signal = all_data[(0.05, 100)]["signals"]["PC"]
+    #goc_signal = all_data[(0.05, 100)]["signals"]["GoC"]
     #print(np.shape(pc_signal))
+
+    ## Peak analysis only on one combination width-amplitude:
+    ## N.B. This function used in all the others to compute scores
+    # peak_analysis(signal=all_data[(0.1, 150)]["signals"]["PC"], prominence=0.9, t=t, ttrans=100, color='green', color_peak='black', name_fig='peak_PC_01_150', save_img=True)
 
     #run_peak_analysis_on_all(all_data, sigmas, amps, t, path_for_csv=basepath + '/', prominence=0.9)
 
-    #peak_analysis(signal=all_data[(0.1, 150)]["signals"]["PC"], prominence=0.9, t=t, ttrans=100, color='green',
-    #              color_peak='black', name_fig='peak_PC_01_150', save_img=True)
-
     #scores = compute_all_score_matrices(all_data, sigmas, amps, t, prominence=0.9, ttrans=100, pop="PC")
+    #scores_window = compute_all_score_matrices_mu3sigma(all_data, sigmas, amps, t, prominence=0.9, ttrans=100, pop="PC")
+
+    #save_scores_to_csv(scores, sigmas, amps, prefix=basepath +'/'+"scores_full")
+    #save_scores_to_csv(scores_window, sigmas, amps, prefix=basepath +'/'+"scores_window")
 
     """
-    plot_surface_3d(sigmas, amps, scores["AUC"],
-                    title="AUC",
-                    zlabel="AUC")
-
-    plot_surface_3d(sigmas, amps, scores["peak"],
-                    title="Max Peak",
-                    zlabel="Peak max [Hz]")
-
-    plot_surface_3d(sigmas, amps, scores["valley"],
-                    title="Pause",
-                    zlabel="Pausa [Hz]")
-
-    plot_surface_3d(sigmas, amps, scores["diff_peak_pause"],
-                    title="Peak-Pause difference",
-                    zlabel="Peak - Pause [Hz]")
-
-    plot_surface_3d(sigmas, amps, scores["diff_baseline"],
-                    title="Pause-baseline difference",
-                    zlabel="Pause - Baseline [Hz]")
+    plot_surface_3d(sigmas, amps, scores["AUC"],title="AUC",zlabel="AUC")
+    plot_surface_3d(sigmas, amps, scores["peak"],title="Max Peak",zlabel="Peak max [Hz]")
+    plot_surface_3d(sigmas, amps, scores["valley"],title="Pause",zlabel="Pausa [Hz]")
+    plot_surface_3d(sigmas, amps, scores["diff_peak_pause"], title="Peak-Pause difference",zlabel="Peak - Pause [Hz]")
+    plot_surface_3d(sigmas, amps, scores["diff_baseline"], title="Pause-baseline difference", zlabel="Pause - Baseline [Hz]")
     """
 
     window_size = 500
     step = 100
+
+    ## Score ONLY FOR THE BELL:
     PCC_mat, MI_mat = compute_pcc_mi_all_stimulus_window(all_data, sigmas, amps, t, window_size=window_size, step=step, pop="PC")
+    #plot_heatmap(sigmas, amps, PCC_mat,title="PCC dynamic (input mu +-3 sdev)",label="PCC")
+    #plot_heatmap(sigmas, amps, MI_mat,title="Mutual info dynamic (input mu +-3 sdev)",label="MI")
+    np.savetxt(basepath +'/'+"PCC_mat.txt", PCC_mat, delimiter=" " )
 
-    plot_heatmap(sigmas, amps, PCC_mat,
-                 title="PCC dynamic (input mu +-3 sdev)",
-                 label="PCC")
+    plot_heatmap_multipanel(sigmas, amps, PCC_mat, MI_mat, "PCC (μ ± 3σ)", "MI (μ ± 3σ)", "PC_PCC_MI_multipanel")
 
-    plot_heatmap(sigmas, amps, MI_mat,
-                 title="Mutual info dynamic (input mu +-3 sdev)",
-                 label="MI")
+    ## Score on all the signal (NOT restricted to bell)
+    #PCC_mat, MI_mat = compute_pcc_mi_all(all_data, sigmas, amps, window_size=window_size, step=step, pop="PC")
+    #plot_heatmap(sigmas, amps, PCC_mat,title="PCC dynamic (all input)",label="PCC")
+    #plot_heatmap(sigmas, amps, MI_mat,title="Mutual Information dynamic (all input)",label="MI")
 
 
-    PCC_mat, MI_mat = compute_pcc_mi_all(all_data, sigmas, amps, window_size=window_size, step=step,
-                                                         pop="PC")
 
-    plot_heatmap(sigmas, amps, PCC_mat,
-                 title="PCC dynamic (all input)",
-                 label="PCC")
 
-    plot_heatmap(sigmas, amps, MI_mat,
-                 title="Mutual Information dynamic (all input)",
-                 label="MI")
 
 
 
