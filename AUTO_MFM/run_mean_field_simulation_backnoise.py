@@ -16,8 +16,8 @@ Lorenzi et al. 2023 (https://journals.plos.org/ploscompbiol/article?id=10.1371/j
 import numpy as np
 import matplotlib.pyplot as plt
 
-#import sys
-#sys.path.append('../')
+import sys
+sys.path.append('../')
 import os
 
 from load_config_TF import *
@@ -150,6 +150,11 @@ if __name__ == '__main__':
     parser.add_argument('-save_sim', type=bool, default=False,
                         help ="save npy file ofr each pop [avg, sd]")
 
+    parser.add_argument('-plot_sim', type=bool, default=False,
+                        help ="save npy file ofr each pop [avg, sd]")
+
+
+
     args = parser.parse_args()
 
     
@@ -165,13 +170,13 @@ if __name__ == '__main__':
     os.makedirs(outdir, exist_ok=True)
     
     
-    print('\n\n========================================================================')
-    print('Running in: ', root_path)
-    print('Output will be saved in: ', outdir, '\nsave flag: ',args.save_sim)
-    print('Configurations: ', NTWK)
-    print('alpha  [Grc, GoC, MLI, PC]: ', args.alfa)
-    print('Background noise frequency: ', f_backnoise)
-    print('===========================================================================\n\n')
+    #print('\n\n========================================================================')
+    #print('Running in: ', root_path)
+    #print('Output will be saved in: ', outdir, '\nsave flag: ',args.save_sim, '\plot flag: ',args.plot_sim)
+    #print('Configurations: ', NTWK)
+    #print('alpha  [Grc, GoC, MLI, PC]: ', args.alfa)
+    #print('Background noise frequency: ', f_backnoise)
+    #print('===========================================================================\n\n')
 
     # Number of cells are fixed according to SNN
     Ngrc = 29916
@@ -186,22 +191,26 @@ if __name__ == '__main__':
 
     # Populations
     NRN1, NRN2, NRN3, NRN4 = 'GrC', 'GoC', 'MLI', 'PC'
-    
-    print(root_path)
 
     # Loading the Transfer Functions - definitiva
     FILE_GrC = root_path + '20250904_101211_GrC_CRBL_CONFIG_AUTOMFM_AWAKE_KmfgrcPLV_tsim5_alpha2.6_fit.npy'
-    print(FILE_GrC)
     FILE_GoC = root_path + '20250903_213910_GoC_CRBL_CONFIG_AUTOMFM_AWAKE_KgrcgocSUM_tsim5_alpha1.9_fit.npy'
 
+    # # FIT 6
+    #FILE_MLI = root_path + '20250903_192555_MLI_CRBL_CONFIG_AUTOMFM_AWAKE_KgrcmliSUMwNstellbask_tsim5_alpha1.5_fit.npy'
+    #FILE_PC = root_path + '20250904_152131_PC_CRBL_CONFIG_AUTOMFM_AWAKE_Qmlipc06_tsim5_alpha1.8_fit.npy'
+
+    # # _3_NEW
+    #FILE_MLI = root_path + '20250903_192555_MLI_CRBL_CONFIG_AUTOMFM_AWAKE_KgrcmliSUMwNstellbask_tsim5_alpha1.5_fit.npy'
+    #FILE_PC = root_path + '20250903_190157_PC_CRBL_CONFIG_AUTOMFM_AWAKE_Qmlipc1.22_KgrcpcSUM_tsim5_alpha1.8_fit.npy'
 
     #FIT 5
     FILE_MLI = root_path + '20250903_184431_MLI_CRBL_CONFIG_AUTOMFM_AWAKE_MLIMLIxPLV_tsim5_alpha1.8_fit.npy'
-    
-    #FILE_PC = root_path + '20250903_190157_PC_CRBL_CONFIG_AUTOMFM_AWAKE_Qmlipc1.22_KgrcpcSUM_tsim5_alpha1.8_fit.npy' #zmin
-    
-    FILE_PC = root_path + '20251107_181916_PC_CRBL_CONFIG_AUTOMFM_AWAKE_tsim5_580_alpha1.5_fit.npy' #plus
+    FILE_PC = root_path + '20250903_190157_PC_CRBL_CONFIG_AUTOMFM_AWAKE_Qmlipc1.22_KgrcpcSUM_tsim5_alpha1.8_fit.npy'
 
+    # # FIT 4
+    #FILE_MLI = root_path + '20250903_184431_MLI_CRBL_CONFIG_AUTOMFM_AWAKE_MLIMLIxPLV_tsim5_alpha1.8_fit.npy'
+    #FILE_PC = root_path + '20250904_152131_PC_CRBL_CONFIG_AUTOMFM_AWAKE_Qmlipc06_tsim5_alpha1.8_fit.npy'
 
 
     TFgrc = load_transfer_functions(NRN1, NTWK, FILE_GrC, alpha = args.alfa[0]) 
@@ -230,25 +239,25 @@ if __name__ == '__main__':
     X_sim[mask] = 0
 
     if args.save_sim:
-    
         # Simulated activity and SD for each population (5000, ) --> timeseries
-        np.save(outdir+'/PC_act_sd.npy', [X_sim[:, 10], np.sqrt(X_sim[:, 15])])
-        np.save(outdir+'/MLI_act_sd.npy', [X_sim[:, 9], np.sqrt(X_sim[:, 11])])
-        np.save(outdir+'/GoC_act_sd.npy', [X_sim[:, 1], np.sqrt(X_sim[:, 6])])
-        np.save(outdir+'/GrC_act_sd.npy', [X_sim[:, 0], np.sqrt(X_sim[:, 2])])
-        np.save(outdir+'/Input.npy', f_mossy)
+        np.savez(outdir+'/PC_act_sd.npz', [X_sim[:, 10], np.sqrt(X_sim[:, 15])])
+        np.savez(outdir+'/MLI_act_sd.npz', [X_sim[:, 9], np.sqrt(X_sim[:, 11])])
+        np.savez(outdir+'/GoC_act_sd.npz', [X_sim[:, 1], np.sqrt(X_sim[:, 6])])
+        np.savez(outdir+'/GrC_act_sd.npz', [X_sim[:, 0], np.sqrt(X_sim[:, 2])])
+        np.savez(outdir+'/Input.npz', f_mossy)
         np.savetxt(outdir+'/alphas.txt', args.alfa)
         #np.savetxt(outdir+'/TFnames.txt',TFgrc, TFgoc, TFmli, TFpc)
         print('Full-time simulations saved in: ', outdir)
 
         #Average activity and SD for each population (1, ) --> value for boxplot
-        np.save(outdir+'/PC_TOT_AVG_SD.npy', [np.average(X_sim[:, 10]), np.average(np.sqrt(X_sim[:, 15]))])
-        np.save(outdir+'/MLI_TOT_AVG_SD.npy', [np.average(X_sim[:, 9]), np.average(np.sqrt(X_sim[:, 11]))])
-        np.save(outdir+'/GoC_TOT_AVG_SD.npy', [np.average(X_sim[:, 1]), np.average(np.sqrt(X_sim[:, 6]))])
-        np.save(outdir+'/GrC_TOT_AVG_SD.npy', [np.average(X_sim[:, 0]), np.average(np.sqrt(X_sim[:, 2]))])
-   
+        np.savez(outdir+'/PC_TOT_AVG_SD.npz', [np.average(X_sim[:, 10]), np.average(np.sqrt(X_sim[:, 15]))])
+        np.savez(outdir+'/MLI_TOT_AVG_SD.npz', [np.average(X_sim[:, 9]), np.average(np.sqrt(X_sim[:, 11]))])
+        np.savez(outdir+'/GoC_TOT_AVG_SD.npz', [np.average(X_sim[:, 1]), np.average(np.sqrt(X_sim[:, 6]))])
+        np.savez(outdir+'/GrC_TOT_AVG_SD.npz', [np.average(X_sim[:, 0]), np.average(np.sqrt(X_sim[:, 2]))])
 
-    plot_MF_activity_withSD(t[t_trans:], X_sim[t_trans:], f_mossy[t_trans:], 
+
+    if args.plot_sim:
+        plot_MF_activity_withSD(t[t_trans:], X_sim[t_trans:], f_mossy[t_trans:],
                             mytitle = 'MF_activity', outdir = outdir, font_size = 12, linew=1)
 
 
