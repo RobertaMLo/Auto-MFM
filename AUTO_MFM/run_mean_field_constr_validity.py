@@ -9,7 +9,7 @@ Update version of Cerebellar mean-field (CRBL-MF v25) based on a mouse-awake con
 See 'CRBL_CONFIG_20PARALLEL_wN_PLOS23_Kredmf_grc' for details on K and Q tuning.
 SNN is the canonical awake. Prameters tuning to scale up from micro to mesoscale performed for numerical TF computation.
 
-Method reference to be cited:
+Method reference to be cited: 
 Lorenzi et al. 2023 (https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1011434)
 """
 
@@ -33,14 +33,14 @@ def plot_distribution(MF_avg, MF_sd, SNN_avg, SNN_sd, pop_name, color):
     My commment: Not used for the moment because for all pops but for PC, I got negative frequencies
     How can I comment this????
     """
-
+    
     x_min = 0  #start from 0 for interpretation
     x_max = max(SNN_avg, MF_avg) + 5 * max(SNN_sd, MF_sd)
-
+    
     # Points on X
     x = np.linspace(x_min, x_max, 1000)
 
-    #x = np.linspace(min(MF_avg, SNN_avg) - 4 * max(MF_sd, SNN_sd),
+    #x = np.linspace(min(MF_avg, SNN_avg) - 4 * max(MF_sd, SNN_sd), 
     #                max(MF_avg, SNN_avg) + 4 * max(MF_sd, SNN_sd), 1000)
 
     # Create the distributions
@@ -61,21 +61,21 @@ def plot_distribution(MF_avg, MF_sd, SNN_avg, SNN_sd, pop_name, color):
 
 
 def mf_snn_io_relation(MF_avg, MF_std, SNN_avg, SNN_std, fmossy, outdir, pop_name, color):
-
+    
     """
     Function to plot the I/O relation of the MF and SNN
     Maybe a bit circular since I used this frequencies to build up the mean field!!!!
     Anyway.... I need to extract the vectors from the SNN simulations
     """
-
+    
     plt.figure(figsize=(5.8,4.1))
     ymin = 0
-    ymax = np.max(np.array([MF_avg[-1]+MF_std[-1], SNN_avg[-1]+SNN_std[-1] ]))+1
+    ymax = np.max(np.array([ MF_avg[-1]+MF_std[-1], SNN_avg[-1]+SNN_std[-1] ]))+1
     #plt.plot(fmossy, MF_avg, 'o', fmossy, SNN_avg, '')
     #plt.plot(fmossy, SNN_avg, 'ok')
 
-    plt.errorbar(fmossy, MF_avg, yerr=MF_std, fmt='-o', color=color, alpha = 0.7, label = 'MF', capsize=8)
-    plt.errorbar(fmossy, SNN_avg, yerr=SNN_std, fmt='-o', color='gray', alpha = 0.5, label = 'SNN', capsize=8)
+    plt.errorbar(fmossy, MF_avg, yerr=MF_std, fmt='-o', color=color, alpha = 0.7, label = 'MF', capsize=8) 
+    plt.errorbar(fmossy, SNN_avg, yerr=SNN_std, fmt='-o', color='gray', alpha = 0.5, label = 'SNN', capsize=8) 
 
     plt.title(pop_name + ' I/O relation', fontsize = 12)
     plt.ylim([ymin, ymax])
@@ -84,7 +84,7 @@ def mf_snn_io_relation(MF_avg, MF_std, SNN_avg, SNN_std, fmossy, outdir, pop_nam
     plt.ylabel('Activity [Hz]', fontsize = 12)
     plt.legend()
 
-    plt.savefig(outdir+'/'+pop_name+'_IO_MF_SNN.pdf', dpi = 300,  bbox_inches='tight')
+    plt.savefig(outdir+'/'+pop_name+'_IO_MF_SNN.png', dpi = 300,  bbox_inches='tight')
     #plt.show()
 
 
@@ -92,26 +92,21 @@ if __name__ == '__main__':
     import argparse
     import time
     parser = argparse.ArgumentParser(description=
-                                    """
+                                    """ 
                                     'Main routine for constrcutive validity with basal awake configuration'
                                     """,
                                     formatter_class=argparse.RawTextHelpFormatter)
 
-
-    parser.add_argument("-f_start_end",
-                        nargs = 3,
-                        help="list where [0] = fstart, [1] = fend; [2] df")
-
     parser.add_argument("-path_mf",
                         help="Folder where MF global stats are saved (average and SD)")
-
-    parser.add_argument("-path_snn",
+    
+    parser.add_argument("-path_snn", 
                         help="Folder where SNN avg FR for each cell type is stored")
 
     parser.add_argument("-outdir",
                         help="where to saved the images")
-
-    parser.add_argument("-NTWK",
+    
+    parser.add_argument("-NTWK", 
                         help="Network name - used to build up folder name where to take the data from", default = '_CRBL_CONFIG_PLV_KandQ_v3')
 
     parser.add_argument('-save_constr', type=bool, default=False,
@@ -119,7 +114,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-
+    
     path_mf = args.path_mf
     path_snn =args.path_snn
     #date_time = time.strftime("%Y%m%d_%H%M%S")
@@ -127,7 +122,7 @@ if __name__ == '__main__':
     outdir = args.outdir
     os.makedirs(outdir, exist_ok=True)
     print('I choose this as output dir to save my outputfile: ', outdir)
-
+  
     PC=[]
     GrC=[]
     GoC=[]
@@ -138,11 +133,11 @@ if __name__ == '__main__':
     goc_snn = []
     grc_snn = []
 
-
-    fmossy = np.arange(int(args.f_start_end[0]), int(args.f_start_end[1]), int(args.f_start_end[2]))
+    
+    fmossy = np.arange(4, 81, 4)
 
     for i in fmossy:
-
+        
         print('fmossy: ', i)
 
         PC_mf = np.load(os.path.join(path_mf,str(i)+'.0_'+ args.NTWK,'PC_TOT_AVG_SD.npy'), allow_pickle = True)
@@ -171,7 +166,7 @@ if __name__ == '__main__':
     df_mli = pd.read_csv(csv_file_mli, header = None)
     df_goc = pd.read_csv(csv_file_goc, header = None)
     df_grc = pd.read_csv(csv_file_grc, header = None)
-
+        
     pc_snn.append([df_pc.iloc[:, 1], df_pc.iloc[:, 2] ])
     mli_snn.append([ df_mli.iloc[:, 1], df_mli.iloc[:, 2] ])
     goc_snn.append([ df_goc.iloc[:, 1], df_goc.iloc[:, 2] ])

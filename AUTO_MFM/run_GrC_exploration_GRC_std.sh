@@ -45,6 +45,13 @@ echo "Numerical TF folder created:" "$LATEST_FOLDER"
 python3 plot2D_numTF.py -FOLDER "$LATEST_FOLDER"
 
 
+NTWK="CRBL_CONFIG_AUTOMFM_AWAKE_FIT_5_5_bis" 
+python3 numTF_computation_BSB.py "$ROOT_DIR" "$CELL" "$NTWK"
+LATEST_FOLDER=$(ls -td *_"$NTWK"* | head -n 1)
+echo "Numerical TF folder created:" "$LATEST_FOLDER"
+python3 plot2D_numTF.py -FOLDER "$LATEST_FOLDER"
+
+
 NTWK="CRBL_CONFIG_AUTOMFM_AWAKE_FIT_5_6" 
 python3 numTF_computation_BSB.py "$ROOT_DIR" "$CELL" "$NTWK"
 LATEST_FOLDER=$(ls -td *_"$NTWK"* | head -n 1)
@@ -59,8 +66,14 @@ echo "Numerical TF folder created:" "$LATEST_FOLDER"
 python3 plot2D_numTF.py -FOLDER "$LATEST_FOLDER"
 
 
-
 NTWK="CRBL_CONFIG_AUTOMFM_AWAKE_FIT_5_8" 
+python3 numTF_computation_BSB.py "$ROOT_DIR" "$CELL" "$NTWK"
+LATEST_FOLDER=$(ls -td *_"$NTWK"* | head -n 1)
+echo "Numerical TF folder created:" "$LATEST_FOLDER"
+python3 plot2D_numTF.py -FOLDER "$LATEST_FOLDER"
+
+
+NTWK="CRBL_CONFIG_AUTOMFM_AWAKE_FIT_5_9" 
 python3 numTF_computation_BSB.py "$ROOT_DIR" "$CELL" "$NTWK"
 LATEST_FOLDER=$(ls -td *_"$NTWK"* | head -n 1)
 echo "Numerical TF folder created:" "$LATEST_FOLDER"

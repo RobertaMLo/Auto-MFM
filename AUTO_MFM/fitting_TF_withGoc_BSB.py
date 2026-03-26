@@ -719,7 +719,7 @@ def plot_TF_numerical_vs_analytical_2D_modspace(MEANfreq, SDfreq, fiSim, Fe_eff_
 
         ##### FIGURE AND COLOR GRADIENT STUFF
 
-        fig1 = plt.figure(figsize=(4, 3))
+        fig1 = plt.figure(figsize=(3, 2.4))
         
         plt.subplots_adjust(bottom=.2, left=.15, right=.85, wspace=.2)
         
@@ -749,7 +749,7 @@ def plot_TF_numerical_vs_analytical_2D_modspace(MEANfreq, SDfreq, fiSim, Fe_eff_
         ticks = np.linspace(vmin, vmax, 4)  
         axcb = plt.colorbar(sm, ticks=ticks, shrink=0.8, fraction=0.09, format='%.0f')
         axcb.ax.tick_params(labelsize=15)
-        axcb.set_label('($\\nu_i$) [Hz]', fontsize=14)
+        axcb.set_label('$\\nu_{MLI}$ [Hz]', fontsize=14)
 
         axcb.ax.tick_params(labelsize=14)
 
@@ -785,7 +785,7 @@ def plot_TF_numerical_vs_analytical_2D_modspace(MEANfreq, SDfreq, fiSim, Fe_eff_
             ax.plot(feSim[cond], Fout_th[cond], color=mymap(r, 1))
 
 
-        set_plot(ax, ['bottom', 'left'], xlabel=' ($\\nu_{e}$)'+ ' [Hz]', \
+        set_plot(ax, ['bottom', 'left'], xlabel=' ($\\nu_{drive}$)'+ ' [Hz]', \
                  ylabel= '$\\nu_{out}$'+ ' [Hz]')
         
   	# # #  HERE to have comparable output between different TFS!!!!
@@ -793,11 +793,11 @@ def plot_TF_numerical_vs_analytical_2D_modspace(MEANfreq, SDfreq, fiSim, Fe_eff_
         ax.set_yticks(np.linspace(0, yout_max, 5, dtype =int))
 
     
-        ax.set_xlim(0, xlim)
-        ax.set_xticks(np.linspace(0, xlim, 7, dtype = int))
+        ax.set_xlim(4, xlim)
+        ax.set_xticks(np.linspace(4, xlim, 3, dtype = int))
         
-        ax.set_xlabel(' ($\\nu_{e}$)'+ ' [Hz]', fontsize = 14)
-        ax.set_ylabel(' ($\\nu_{out}$)'+ ' [Hz]', fontsize = 14)
+        ax.set_xlabel(' $\\nu_{drive}$'+ ' [Hz]', fontsize = 14)
+        ax.set_ylabel(' $\\nu_{out}$'+ ' [Hz]', fontsize = 14)
         ax.tick_params(axis='both', labelsize=14)
 
 
@@ -816,7 +816,7 @@ def plot_TF_numerical_vs_analytical_2D_modspace(MEANfreq, SDfreq, fiSim, Fe_eff_
         print('Min diff', diff_min)
         
         plt.savefig(FOLDER+'_alfa'+str(alpha)+'.pdf',dpi=300, bbox_inches = 'tight')
-        plt.savefig(FOLDER+'_alfa'+str(alpha)+'.png',dpi=300, bbox_inches = 'tight')
+        #plt.savefig(FOLDER+'_alfa'+str(alpha)+'.png',dpi=300, bbox_inches = 'tight')
 
         plt.show()
 

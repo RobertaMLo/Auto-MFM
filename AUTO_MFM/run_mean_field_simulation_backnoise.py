@@ -150,11 +150,6 @@ if __name__ == '__main__':
     parser.add_argument('-save_sim', type=bool, default=False,
                         help ="save npy file ofr each pop [avg, sd]")
 
-    parser.add_argument('-plot_sim', type=bool, default=False,
-                        help ="save npy file ofr each pop [avg, sd]")
-
-
-
     args = parser.parse_args()
 
     
@@ -170,13 +165,13 @@ if __name__ == '__main__':
     os.makedirs(outdir, exist_ok=True)
     
     
-    #print('\n\n========================================================================')
-    #print('Running in: ', root_path)
-    #print('Output will be saved in: ', outdir, '\nsave flag: ',args.save_sim, '\plot flag: ',args.plot_sim)
-    #print('Configurations: ', NTWK)
-    #print('alpha  [Grc, GoC, MLI, PC]: ', args.alfa)
-    #print('Background noise frequency: ', f_backnoise)
-    #print('===========================================================================\n\n')
+    print('\n\n========================================================================')
+    print('Running in: ', root_path)
+    print('Output will be saved in: ', outdir, '\nsave flag: ',args.save_sim)
+    print('Configurations: ', NTWK)
+    print('alpha  [Grc, GoC, MLI, PC]: ', args.alfa)
+    print('Background noise frequency: ', f_backnoise)
+    print('===========================================================================\n\n')
 
     # Number of cells are fixed according to SNN
     Ngrc = 29916
@@ -239,25 +234,25 @@ if __name__ == '__main__':
     X_sim[mask] = 0
 
     if args.save_sim:
+    
         # Simulated activity and SD for each population (5000, ) --> timeseries
-        np.savez(outdir+'/PC_act_sd.npz', [X_sim[:, 10], np.sqrt(X_sim[:, 15])])
-        np.savez(outdir+'/MLI_act_sd.npz', [X_sim[:, 9], np.sqrt(X_sim[:, 11])])
-        np.savez(outdir+'/GoC_act_sd.npz', [X_sim[:, 1], np.sqrt(X_sim[:, 6])])
-        np.savez(outdir+'/GrC_act_sd.npz', [X_sim[:, 0], np.sqrt(X_sim[:, 2])])
-        np.savez(outdir+'/Input.npz', f_mossy)
+        np.save(outdir+'/PC_act_sd.npy', [X_sim[:, 10], np.sqrt(X_sim[:, 15])])
+        np.save(outdir+'/MLI_act_sd.npy', [X_sim[:, 9], np.sqrt(X_sim[:, 11])])
+        np.save(outdir+'/GoC_act_sd.npy', [X_sim[:, 1], np.sqrt(X_sim[:, 6])])
+        np.save(outdir+'/GrC_act_sd.npy', [X_sim[:, 0], np.sqrt(X_sim[:, 2])])
+        np.save(outdir+'/Input.npy', f_mossy)
         np.savetxt(outdir+'/alphas.txt', args.alfa)
         #np.savetxt(outdir+'/TFnames.txt',TFgrc, TFgoc, TFmli, TFpc)
         print('Full-time simulations saved in: ', outdir)
 
         #Average activity and SD for each population (1, ) --> value for boxplot
-        np.savez(outdir+'/PC_TOT_AVG_SD.npz', [np.average(X_sim[:, 10]), np.average(np.sqrt(X_sim[:, 15]))])
-        np.savez(outdir+'/MLI_TOT_AVG_SD.npz', [np.average(X_sim[:, 9]), np.average(np.sqrt(X_sim[:, 11]))])
-        np.savez(outdir+'/GoC_TOT_AVG_SD.npz', [np.average(X_sim[:, 1]), np.average(np.sqrt(X_sim[:, 6]))])
-        np.savez(outdir+'/GrC_TOT_AVG_SD.npz', [np.average(X_sim[:, 0]), np.average(np.sqrt(X_sim[:, 2]))])
+        np.save(outdir+'/PC_TOT_AVG_SD.npy', [np.average(X_sim[:, 10]), np.average(np.sqrt(X_sim[:, 15]))])
+        np.save(outdir+'/MLI_TOT_AVG_SD.npy', [np.average(X_sim[:, 9]), np.average(np.sqrt(X_sim[:, 11]))])
+        np.save(outdir+'/GoC_TOT_AVG_SD.npy', [np.average(X_sim[:, 1]), np.average(np.sqrt(X_sim[:, 6]))])
+        np.save(outdir+'/GrC_TOT_AVG_SD.npy', [np.average(X_sim[:, 0]), np.average(np.sqrt(X_sim[:, 2]))])
+   
 
-
-    if args.plot_sim:
-        plot_MF_activity_withSD(t[t_trans:], X_sim[t_trans:], f_mossy[t_trans:],
+    plot_MF_activity_withSD(t[t_trans:], X_sim[t_trans:], f_mossy[t_trans:], 
                             mytitle = 'MF_activity', outdir = outdir, font_size = 12, linew=1)
 
 

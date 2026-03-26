@@ -60,7 +60,7 @@ def plot_cmap_2D_template(pop_name, y_inhib_label, x_excit_label, fold_name, fon
     cm_sel = plt.get_cmap("viridis")
     #mat = plt.matshow(MEANfreq+1e-3, cmap=cm_sel, norm = LogNorm() )
 
-    plt.figure(1, figsize=(7,7))
+    plt.figure(figsize=(2.4,2.4))
     plt.imshow(MEANfreq, origin = 'lower')
 
     plt.title(pop_name + ' TF numerical template [Hz]', fontsize = font_size+2)
@@ -87,10 +87,10 @@ def plot_cmap_2D_template_modspace(pop_name, y_inhib_label, x_excit_label, fold_
     
     #mat = plt.matshow(MEANfreq+1e-3, cmap=cm_sel, norm = LogNorm() )
     
-    vmin = 0
-    vmax = 120
+    vmin = MEANfreq.min()#0
+    vmax = MEANfreq.max()#120
 
-    plt.figure(figsize=(3,3))
+    plt.figure(figsize=(2.4,2.4))
     
     cm_sel = plt.get_cmap("viridis")
     
@@ -111,11 +111,11 @@ def plot_cmap_2D_template_modspace(pop_name, y_inhib_label, x_excit_label, fold_
     fontsize=font_size)
 	
 
-    ticks = np.linspace(vmin, vmax, 3, endpoint=True)
+    ticks = np.linspace(vmin, 120, 3, endpoint=True)
 
     color_map = plt.cm.ScalarMappable(cmap=cm_sel) # Create a ScalarMappable object to map numerical values to colors for the colorbar
     color_map.set_array(MEANfreq)
-    color_map.set_clim(vmin, vmax)
+    color_map.set_clim(vmin, 120)
 
     axcb = plt.colorbar(color_map, ticks = ticks, shrink = 0.5, fraction = 0.07, format='%.0f')
     #axcb.set_label("Numerical TF [Hz]", labelpad=5, size=font_size+1) #labelpad to avoid overlaps of the title with ticks
@@ -127,7 +127,7 @@ def plot_cmap_2D_template_modspace(pop_name, y_inhib_label, x_excit_label, fold_
     
     print('saving image here')
     plt.savefig('./'+fold_name +'_modspace.pdf',dpi = 300, bbox_inches='tight')
-    plt.savefig('./'+fold_name +'modspace.png',dpi = 300, bbox_inches='tight')
+    #plt.savefig('./'+fold_name +'modspace.png',dpi = 300, bbox_inches='tight')
     #plt.show()
 
 
@@ -161,16 +161,16 @@ if __name__ == '__main__':
     else:
         if '_GrC_' in FOLDER:
             pop = 'GrC'
-            xname = '($\\nu_{drive}$ [Hz])'
-            yname = '($\\nu_i$ [Hz])'
+            xname = '$\\nu_{drive}$ [Hz]'
+            yname = '$\\nu_{GoC}$ [Hz]'
         elif '_MLI_' in FOLDER:
             pop = 'MLI'
-            xname = 'GrC ($\\nu_{e}$ [Hz])'
-            yname = 'MLI ($\\nu_i$ [Hz])'
+            xname = '$\\nu_{GrC}$ [Hz]'
+            yname = '$\\nu_{MLI}$ [Hz]'
         elif '_PC_' in FOLDER:
             pop = 'PC'
-            xname = 'GrC ($\\nu_{e}$ [Hz])'
-            yname = 'MLI ($\\nu_i$ [Hz])'
+            xname = '$\\nu_{GrC}$ [Hz]'
+            yname = '$\\nu_{MLI}$ [Hz]'
         else:
             print ('FOLDER NAME NOT VALID FOR THIS OPERATION')
 

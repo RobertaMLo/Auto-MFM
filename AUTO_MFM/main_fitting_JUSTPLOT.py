@@ -68,12 +68,13 @@ if __name__ == '__main__':
         #call_plot_fitting(args.FOLDER, args.alpha, MEANfreq, sd_freq, w, fiSim, Fe_m_eff, params,
         #              xname='GrC', barname='MLI')
                       
-        yout_max = 80
+        yout_max = 80        
+        xlim = 50
                       
         MEANfreq, SDfreq, w, fiSim, Fe_eff_m, P = set_params_for_plotting(args.FOLDER, args.alpha, MEANfreq, sd_freq, w, fiSim, Fe_m_eff)
 
 
-        plot_TF_numerical_vs_analytical_2D_modspace(MEANfreq, SDfreq, fiSim, Fe_eff_m, yout_max, w,
+        plot_TF_numerical_vs_analytical_2D_modspace(MEANfreq, SDfreq, fiSim, Fe_eff_m, yout_max, xlim, w,
                                                  P, args.alpha, params, xname='', barname='', FOLDER=args.FOLDER, facW=1)
 
 
@@ -92,13 +93,10 @@ if __name__ == '__main__':
         #call_plot_fitting(args.FOLDER, args.alpha, MEANfreq_grc, sd_freq_grc, w_grc, fiSim_grc, Fe_m_eff_grc, params_grc,
         #              xname='mossy fibres', barname='GoC')
         
-        yout_max = 280#125
+        yout_max = 220#125
+        xlim = 76
                       
         MEANfreq, SDfreq, w, fiSim, Fe_eff_m, P = set_params_for_plotting(args.FOLDER, args.alpha, MEANfreq_grc, sd_freq_grc, w_grc, fiSim_grc, Fe_m_eff_grc)
 
 
-        plot_TF_numerical_vs_analytical_2D_modspace(MEANfreq, SDfreq, fiSim, Fe_eff_m, yout_max, w,
-                                                 P, args.alpha, params_grc, xname='', barname='', FOLDER=args.FOLDER, facW=1)
-                      
-                      
-         
+        plot_TF_numerical_vs_analytical_2D_modspace(MEANfreq, SDfreq, fiSim, Fe_eff_m, yout_max, xlim, w, P, args.alpha, params_grc, xname='', barname='', FOLDER=args.FOLDER, facW=1)

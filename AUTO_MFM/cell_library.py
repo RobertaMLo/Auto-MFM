@@ -3,8 +3,8 @@ Library of single-neurons configurations
 """
 from __future__ import print_function
 
-
 def get_neuron_params(NAME,  SI_units=True, name='', number=1):
+
     if NAME == 'GrC':
         params = {'name': name, 'N': number,
                   'Gl': 0.2899, 'Cm': 7., 'Trefrac': 1.5, 'tm': 24.15,
@@ -27,8 +27,19 @@ def get_neuron_params(NAME,  SI_units=True, name='', number=1):
         params = {'name': name, 'N': number,
                   'Gl': 7.1064, 'Cm': 334., 'Trefrac': 0.5, 'tm': 47.,
                   'El': -59., 'Vthre': -43., 'Vreset': -69., 'delta_v': 3.5,
-                  'kadap': 1.491, 'k2': 0.041, 'k1': 0.195, 'A2': 172.622, 'A1': 157.622, 'Ie': 600} #700 std #mf PLOS version:742.54*1.2
+                  'kadap': 1.491, 'k2': 0.041, 'k1': 0.195, 'A2': 172.622, 'A1': 157.622, 'Ie': 780} #700 std #mf PLOS version:742.54*1.2
 
+    elif NAME == 'GrC_IB2KO':
+        params = {'name': name, 'N': number,
+                  'Gl': 0.132, 'Cm': 3.2, 'Trefrac': 1.5, 'tm': 24.15,
+                  'El': -62., 'Vthre': -41., 'Vreset': -70., 'delta_v': 0.3,
+                  'kadap': 0.022, 'k2': 0.041, 'k1': 0.311, 'A2': -0.94, 'A1': 0.01, 'Ie': -0.888}
+
+    elif NAME == 'GrC_WT':
+        params = {'name': name, 'N': number,
+                  'Gl': 0.147, 'Cm': 3.6, 'Trefrac': 1.5, 'tm': 24.15,
+                  'El': -62., 'Vthre': -41., 'Vreset': -70., 'delta_v': 0.3,
+                  'kadap': 0.022, 'k2': 0.041, 'k1': 0.311, 'A2': -0.94, 'A1': 0.01, 'Ie': -0.888}
 
     else:
         print('====================================================')

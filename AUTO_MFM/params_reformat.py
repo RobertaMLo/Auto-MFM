@@ -13,7 +13,7 @@ def reformat_syn_parameters_eglif(CELL, params, M):
         params['Qi'], params['Ti'], params['Ei'] = M[3, 3]['Q'], M[3, 3]['Tsyn'], M[3, 3]['Erev']
         params['Ki'] = M[3, 3]['K']
 
-    elif CELL == 'GrC':
+    elif 'GrC' in CELL:
         # sinapsi to_Granular
         params['Qe'], params['Te'], params['Ee'] = M[0, 0]['Q'], M[0, 0]['Tsyn'], M[0, 0]['Erev']
         params['Qi'], params['Ti'], params['Ei'] = M[2, 0]['Q'], M[2, 0]['Tsyn'], M[2, 0]['Erev']
