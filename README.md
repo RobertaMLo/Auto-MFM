@@ -7,6 +7,8 @@
 
 Auto-MFM is designed to be part of the multi-scale modeling ecosystem together with the BSB (https://www.ebrains.eu/tools/bsb) for biophysical SNN construction and TVB (https://ebrains.eu/data-tools-services/tools/the-virtual-brain) for whole-brain dynamics simulations.
 
+![pipeline AUTOMFM](docs/AUTO_MFM.png)
+
 ## Cerebellar test-bench
 This repository contains the implementation of the **Cerebellar Mean Field model**. The model is developed based on the methods presented in **Lorenzi et al., 2023, Plos Comp Bio** and updated to reproduce the cerebellar dynamics tuned on awake states.
 
