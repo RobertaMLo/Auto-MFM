@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/Auto_MFM_logo_app.png" alt="Auto-MFM logo" width="200"/>
+</p>
+
 # Auto-MFM
 
 **Auto-MFM** is a novel computational framework for automated multiscale modeling of brain circuits, designed to streamline the generation of mesoscale models (i.e., Mean Field Models, MFMs) from their biophysically-based microcircuit counterparts (i.e., Spiking Neural Networks, SNNs). Auto-MFM leverages two fundamental assets:
