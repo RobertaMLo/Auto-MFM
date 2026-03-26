@@ -24,7 +24,7 @@ def optimization(problem, algorithm, xtol=1e-8, cvtol=1e-8, ftol=25e-4, period=3
 def load_snn_ground_truth(folder_path):
     data = {}
     for cell in ['granule_cell', 'golgi_cell', 'MLI_cell', 'purkinje_cell']:
-        df = pd.read_csv(os.path.join(folder_path, f'{cell}_fr_for_TF_3.csv'))
+        df = pd.read_csv(os.path.join(folder_path, f'{cell}_fr_for_TF.csv')) #TRIAL ON ALL FREQ
         data[cell] = {
             'freqs': df.iloc[:, 0].values,
             'mean': df.iloc[:, 1].values,
