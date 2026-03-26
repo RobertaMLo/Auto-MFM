@@ -1,4 +1,4 @@
-# Auto-MFM.
+# Auto-MFM
 
 **Auto-MFM** is a novel computational framework for automated multiscale modeling of brain circuits, designed to streamline the generation of mesoscale models (i.e., Mean Field Models, MFMs) from their biophysically-based microcircuit counterparts (i.e., Spiking Neural Networks, SNNs). Auto-MFM leverages two fundamental assets:
 
@@ -30,8 +30,6 @@ The cerebellar network comprises the following cell types, each modelled as an *
 - **GoC** — Golgi Cell
 - **MLI** — Molecular Layer Interneuron
 - **PC** — Purkinje Cell
-- **GrC\_IB2KO** — Granule Cell (IB2 knockout variant)
-- **GrC\_WT** — Granule Cell (wild-type variant)
 
 ---
 
